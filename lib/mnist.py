@@ -10,13 +10,15 @@ class Mnist:
     LABEL_MAGIC_NUMBER = 2049
     IMAGE_MAGIC_NUMBER = 2051
 
-    def __init__(self, dir = 'mnist'):
+    def __init__(self, dir):
         self.dir = dir
 
         self.training_images = []
         self.training_labels = []
         self.test_images = []
         self.test_labels = []
+        self.row_count = 0
+        self.col_count = 0
 
     def load_training_set(self, count = None):
         image_file_path = path.join(self.dir, self.TRAINING_IMAGE_FILE)
@@ -38,15 +40,14 @@ class Mnist:
                 raise Exception('Unexpected file')
 
             image_count = self._read_int32(f)
-            row_count = self._read_int32(f)
-            col_count = self._read_int32(f)
+            self.row_count = self._read_int32(f)
+            self.col_count = self._read_int32(f)
 
             images = []
 
             for i in range(count or image_count):
-                buf = self._read_ubytes(f, row_count * col_count)
-                image = [buf[row_count * c : row_count * (c + 1)] for c in range(col_count)]
-                images.append(image)
+                buf = self._read_ubytes(f, self.row_count * self.col_count)
+                images.append(buf)
 
             return images
 
@@ -70,47 +71,49 @@ class Mnist:
     def _read_ubytes(f, size):
         return struct.unpack('%dB' % size, f.read(size))
 
-    def get_training_image(self, i):
-        return self.training_images[i]
+    def get_training_images(self):
+        return self.training_images;
 
-    def get_training_label(self, i):
-        return self.training_labels[i]
+    def get_training_labels(self):
+        return self.training_labels
 
-    def get_training_set_count(self):
-        return len(self.training_images)
+    def get_test_images(self):
+        return self.test_images
 
-    def get_test_image(self, i):
-        return self.test_images[i]
-
-    def get_test_label(self, i):
-        return self.test_labels[i]
-
-    def get_test_set_count(self):
-        return len(self.test_images)
+    def get_test_labels(self):
+        return self.test_labels
 
     def get_row_count(self):
-        return len(self.get_training_image(0))
+        return self.row_count
 
     def get_col_count(self):
-        return len(self.get_training_image(0)[0])
+        return self.col_count
 
-def print_image(image):
-    for row in image:
-        for pixel in row:
-            print('%3d' % pixel, end='')
+def print_image(image, row_count, col_count):
+    for row in range(row_count):
+        for col in range(col_count):
+            print('%3d' % image[row * col_count + col], end='')
         print()
 
 if __name__ == '__main__':
-    mnist = Mnist()
-    mnist.load_training_set(3)
-    mnist.load_test_set(3)
+    dir = path.join(path.dirname(path.realpath(__file__)), '..', 'resources', 'mnist')
+    mnist = Mnist(dir)
+    n = 3
+    mnist.load_training_set(n)
+    mnist.load_test_set(n)
 
-    for i in range(3):
-        print('training set #%d - %d' % (i, mnist.get_training_label(i)))
-        print_image(mnist.get_training_image(i))
+    for i in range(n):
+        image = mnist.get_training_images()[i]
+        label = mnist.get_training_labels()[i]
+
+        print('training set #%d - %d' % (i, label))
+        print_image(image, mnist.get_row_count(), mnist.get_col_count())
         print()
 
-    for i in range(3):
-        print('test set #%d - %d' % (i, mnist.get_test_label(i)))
-        print_image(mnist.get_test_image(i))
+    for i in range(n):
+        image = mnist.get_test_images()[i]
+        label = mnist.get_test_labels()[i]
+
+        print('test set #%d - %d' % (i, label))
+        print_image(image, mnist.get_row_count(), mnist.get_col_count())
         print()
