@@ -1,3 +1,5 @@
-resources/mnist
-resources/simple_predictor.npy
+node_modules
+web/resources/mnist
+web/resources/simple_predictor.npy
+web/static
 __pycache__

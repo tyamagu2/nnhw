@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>nnhw</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </head>
+  <body style="text-align: center;">
+    <main class="container">
+      <h1>Handwritten Digits Recognition</h1>
+      <div>
+        <canvas id="input-canvas" style="border:1px solid #000;"></canvas>
+        <button id="button-clear">clear</button>
+      </div>
+      <div>
+        <h2>Guess:</h2>
+        <div id="guess" style="font-size: 64px;">
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
