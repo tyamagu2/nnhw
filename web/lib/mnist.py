@@ -1,5 +1,6 @@
 import struct
 from os import path
+import numpy as np
 
 class Mnist:
     TRAINING_LABEL_FILE = 'train-labels-idx1-ubyte'
@@ -36,40 +37,21 @@ class Mnist:
 
     def _load_image_file(self, file_path, count):
         with open(file_path, 'rb') as f:
-            if self._read_int32(f) != self.IMAGE_MAGIC_NUMBER:
+            magic, image_count, self.row_count, self.col_count = struct.unpack('>4i', f.read(16))
+
+            if magic != self.IMAGE_MAGIC_NUMBER:
                 raise Exception('Unexpected file')
 
-            image_count = self._read_int32(f)
-            self.row_count = self._read_int32(f)
-            self.col_count = self._read_int32(f)
-
-            images = []
-
-            for i in range(count or image_count):
-                buf = self._read_ubytes(f, self.row_count * self.col_count)
-                images.append(buf)
-
-            return images
+            return np.fromfile(f, dtype=np.uint8).reshape(image_count, self.row_count * self.col_count)
 
     def _load_label_file(self, file_path, count):
         with open(file_path, 'rb') as f:
-            if self._read_int32(f) != self.LABEL_MAGIC_NUMBER:
+            magic, label_count = struct.unpack('>2i', f.read(8))
+
+            if magic != self.LABEL_MAGIC_NUMBER:
                 raise Exception('Unexpected file')
 
-            label_count = self._read_int32(f)
-            return self._read_ubytes(f, count or label_count)
-
-    @staticmethod
-    def _read_int32(f):
-        return struct.unpack('>i', f.read(4))[0]
-
-    @staticmethod
-    def _read_ubyte(f):
-        return struct.unpack('B', f.read(1))[0]
-
-    @staticmethod
-    def _read_ubytes(f, size):
-        return struct.unpack('%dB' % size, f.read(size))
+            return np.fromfile(f, dtype=np.uint8)
 
     def get_training_images(self):
         return self.training_images;
@@ -98,9 +80,10 @@ def print_image(image, row_count, col_count):
 if __name__ == '__main__':
     dir = path.join(path.dirname(path.realpath(__file__)), '..', 'resources', 'mnist')
     mnist = Mnist(dir)
+    mnist.load_training_set()
+    mnist.load_test_set()
+
     n = 3
-    mnist.load_training_set(n)
-    mnist.load_test_set(n)
 
     for i in range(n):
         image = mnist.get_training_images()[i]
