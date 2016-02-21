@@ -1,16 +1,17 @@
 import numpy as np
-from .predictor_base import PredictorBase
 
-class SimplePredictor(PredictorBase):
-    def train(self, xs, ys):
-        values = np.zeros((10, 28 * 28))
-        counts = np.zeros(10)
+class SimplePredictor:
+    def train(self, X, y, label_count):
+        self.label_count = label_count
+        self.feature_count  = X.shape[1]
+        values = np.zeros((self.label_count, self.feature_count))
+        counts = np.zeros(self.label_count)
 
-        for x, y in zip(xs, ys):
+        for x, y in zip(X, y):
             values[y] += x
             counts[y] += 1
 
-        for i in range(10):
+        for i in range(label_count):
             values[i] /= counts[i]
 
         self.values = values
@@ -20,6 +21,9 @@ class SimplePredictor(PredictorBase):
 
     def load_params(self, path):
         self.values = np.load(path)
+
+    def predict(self, X):
+        return np.array([self._predict(x) for x in X])
 
     def _predict(self, x):
         return np.square(self.values - x).sum(axis = 1).argmin()
@@ -34,12 +38,12 @@ if __name__ == "__main__":
     mnist.load_training_set()
 
     predictor = SimplePredictor()
-    predictor.train(mnist.get_training_images(), mnist.get_training_labels())
+    predictor.train(mnist.get_training_images(), mnist.get_training_labels(), 10)
 
     mnist.load_test_set()
     actual = mnist.get_test_labels()
     guess = predictor.predict(mnist.get_test_images())
-    precision = np.count_nonzero(actual == guess) / len(actual)
+    precision = np.count_nonzero(actual == guess) / actual.shape[0]
 
     print('precision: %.2f%%' %(100 * precision))
 
