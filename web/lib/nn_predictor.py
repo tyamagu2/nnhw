@@ -128,7 +128,7 @@ if __name__ == "__main__":
     mnist.load_training_set()
 
     predictor = NNPredictor()
-    predictor.train(mnist.get_training_images(), mnist.get_training_labels(), 28 * 28, 10, iteration_count=5000)
+    predictor.train(mnist.get_training_images(), mnist.get_training_labels(), 28 * 28, 10)
 
     mnist.load_test_set()
     actual = mnist.get_test_labels()
