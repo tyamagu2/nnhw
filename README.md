@@ -1,5 +1,7 @@
 # Handwritten Digits Recognition
 
+![Imgur](http://i.imgur.com/oIxaI1B.gif)
+
 A flask app that classifies handwritten digits using neural network and backpropagation algorithm.
 
 The neural network consists of an input layer, a hidden layer and an output layer.
