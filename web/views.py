@@ -1,7 +1,8 @@
 from . import app
 from flask import render_template, request
 from os import path
-from .lib.simple_predictor import SimplePredictor
+from .lib.nn_predictor import NNPredictor
+import numpy as np
 
 @app.route('/')
 def index():
@@ -11,11 +12,11 @@ def index():
 def guess():
     image = request.get_json()['image']
 
-    params_file_path = path.join(path.dirname(path.realpath(__file__)), 'resources', 'simple_predictor.npy')
-    simple_predictor = SimplePredictor()
-    simple_predictor.load_params(params_file_path)
+    params_file_path = path.join(path.dirname(path.realpath(__file__)), 'resources', 'nn_predictor.npy')
+    predictor = NNPredictor()
+    predictor.load_params(params_file_path)
 
-    return str(simple_predictor.predict([image])[0])
+    return str(predictor.predict(np.array([np.array(image)]))[0])
 
 if __name__ == '__main__':
     app.run(debug = True)
