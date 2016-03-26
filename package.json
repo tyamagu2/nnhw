@@ -1,14 +1,15 @@
 {
-  "name": "hw",
+  "name": "nnhw",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "webpack -w"
+    "start": "webpack -w",
+    "postinstall": "webpack"
   },
-  "author": "",
+  "author": "tyamagu2",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "babel-core": "^6.4.5",
     "babel-loader": "^6.2.2",
     "babel-preset-es2015": "^6.3.13",
