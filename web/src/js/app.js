@@ -1,7 +1,7 @@
 class InputCanvas {
   constructor(onMouseUp) {
     this.canvas = document.getElementById('input-canvas');
-    this.lineWidth = 8;
+    this.lineWidth = 16;
     this.canvas.height = this.lineWidth * 28;
     this.canvas.width = this.lineWidth * 28;
     this.context = this.canvas.getContext('2d');
@@ -17,30 +17,69 @@ class InputCanvas {
 
   _setEventListeners() {
     this.canvas.addEventListener('mousedown', (e) => {
-      let position = this._normalizedPosition(e.pageX, e.pageY);
-      this.context.lineWidth = this.lineWidth;
-      this.context.beginPath();
-      this.context.moveTo(position.x, position.y);
-      this.drawing = true;
+      e.preventDefault();
+
+      this._startDrawing(e.pageX, e.pageY);
     });
 
     this.canvas.addEventListener('mousemove', (e) => {
-      if (!this.drawing) { return; }
+      e.preventDefault();
 
-      let position = this._normalizedPosition(e.pageX, e.pageY);
-      this.context.lineTo(position.x, position.y);
-      this.context.stroke();
+      this._continueDrawing(e.pageX, e.pageY);
     });
 
     this.canvas.addEventListener('mouseup', (e) => {
-      let position = this._normalizedPosition(e.pageX, e.pageY);
-      this.context.lineTo(position.x, position.y);
-      this.context.stroke();
-      this.context.closePath();
-      this.drawing = false;
+      e.preventDefault();
 
-      this.onMouseUp(this.canvas.toDataURL());
+      this._endDrawing(e.pageX, e.pageY);
     });
+
+    this.canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+
+      let touch = e.changedTouches[0];
+      this._startDrawing(touch.pageX, touch.pageY);
+    });
+
+    this.canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+
+      let touch = e.changedTouches[0];
+      this._continueDrawing(touch.pageX, touch.pageY);
+    });
+
+    this.canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+
+      let touch = e.changedTouches[0];
+      this._endDrawing(touch.pageX, touch.pageY);
+    });
+  }
+
+  _startDrawing(pageX, pageY) {
+    let position = this._normalizedPosition(pageX, pageY);
+    this.context.lineWidth = this.lineWidth;
+    this.context.beginPath();
+    this.context.moveTo(position.x, position.y);
+    this.drawing = true;
+  }
+
+  _continueDrawing(pageX, pageY) {
+    if (!this.drawing) { return; }
+
+    let position = this._normalizedPosition(pageX, pageY);
+    this.context.lineTo(position.x, position.y);
+    this.context.stroke();
+  }
+
+  _endDrawing(pageX, pageY) {
+    let position = this._normalizedPosition(pageX, pageY);
+    this.context.lineTo(position.x, position.y);
+    this.context.stroke();
+    this.context.closePath();
+    this.drawing = false;
+
+    this.onMouseUp(this.canvas.toDataURL());
   }
 
   _normalizedPosition(x, y) {
